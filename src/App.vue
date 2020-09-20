@@ -1,19 +1,35 @@
 <template>
   <div id="app">
-    <div id="nav">
+    <!-- <div id="nav">
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link>
-    </div>
+    </div> -->
     <router-view/>
   </div>
 </template>
 
-<style>
+<script>
+import { mapActions } from 'vuex'
+export default {
+  name: 'App',
+  methods: {
+    ...mapActions(['interceptorsRequest', 'interceptorsResponse'])
+  },
+  created () {
+    console.log('err dong')
+    this.interceptorsRequest()
+    this.interceptorsResponse('bbbb')
+      .catch(err => console.log(err))
+  }
+}
+</script>
+
+<style scoped>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
+  /* text-align: center; */
   color: #2c3e50;
 }
 
