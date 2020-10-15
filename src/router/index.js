@@ -7,14 +7,17 @@ import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Store from '../store/index'
 import ForgotPassword from '../views/ForgotPassword.vue'
+import Profile from '../views/Profile.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/',
+    path: '/home',
     name: 'Home',
     component: Home
+    // meta: { requiresAuth: true }
+    // meta: { requiresVisitor: true }
   },
   {
     path: '/chat',
@@ -40,19 +43,25 @@ const routes = [
     meta: { requiresVisitor: true }
   },
   {
-    path: '/chating',
+    path: '/',
     name: 'ChatTing',
     component: ChatTing,
     meta: { requiresAuth: true }
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    path: '/profile',
+    name: 'Profile',
+    component: Profile,
+    meta: { requiresAuth: true }
   }
+  // {
+  //   path: '/about',
+  //   name: 'About',
+  //   // route level code-splitting
+  //   // this generates a separate chunk (about.[hash].js) for this route
+  //   // which is lazy-loaded when the route is visited.
+  //   component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+  // }
 ]
 
 const router = new VueRouter({
@@ -76,7 +85,7 @@ router.beforeEach((to, from, next) => {
   } else if (to.matched.some(record => record.meta.requiresVisitor)) {
     if (Store.getters.isLogin) {
       next({
-        path: '/chating'
+        path: '/'
         // query: { redirect: to.fullPath }
       })
     } else {

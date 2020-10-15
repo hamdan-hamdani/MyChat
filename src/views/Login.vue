@@ -43,8 +43,10 @@ export default {
       }
       this.login(data)
         .then((res) => {
+          alert('berhasil login')
           console.log(res.id)
           this.$router.push({
+            // path: '/chating'
             name: 'ChatTing',
             params: {
               userId: res.id,
@@ -54,7 +56,7 @@ export default {
           })
         })
         .catch(err => {
-          // alert('coba err')
+          alert('coba err')
           console.log(err)
         })
     }

@@ -2,19 +2,27 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 import Router from '../router/index'
+import moment from 'moment'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
     user: {},
+    // user: localStorage.getItem('id') || null,
     token: localStorage.getItem('token') || null,
     register: [],
     message: '',
     personalChat: {},
     friends: [],
-    textMessage: ''
+    textMessage: '',
+    msg: [],
+    userId: '',
+    currentUser: []
   },
   mutations: {
+    mutuserId (state, payload) {
+      state.userId = payload
+    },
     setUser (state, payload) {
       state.user = payload
       state.token = payload.token
@@ -35,6 +43,12 @@ export default new Vuex.Store({
     },
     setTextMessage (state, payload) {
       state.textMessage = payload
+    },
+    mutMessage (state, payload) {
+      state.msg = payload
+    },
+    mutCurrentUser (state, payload) {
+      state.currentUser = payload
     }
   },
   actions: {
@@ -44,9 +58,10 @@ export default new Vuex.Store({
         axios.post('http://localhost:4000/api/v1/users/login', payload)
           .then(res => {
             console.log('res')
-            console.log(res)
+            console.log(res.data.result)
             setex.commit('setUser', res.data.result)
             localStorage.setItem('token', res.data.result.token)
+            localStorage.setItem('id', res.data.result.id)
             resolve(res.data.result)
           })
           .catch(err => {
@@ -61,6 +76,85 @@ export default new Vuex.Store({
           .then(res => {
             // setex.commit('setRegister', res.data.result)
             resolve(res.data.result)
+          })
+          .catch(err => {
+            reject(err)
+          })
+      })
+    },
+    actGetMsg (setex, payload) {
+      console.log('awal')
+      console.log(payload)
+      console.log('akhir')
+      return new Promise((resolve, reject) => {
+        axios.get('http://localhost:4000/api/v1/users/getmessage/' + payload.id + '/' + payload.idfriend)
+          .then(async (reso) => {
+            // alert('masukaj')
+            // console.log('masukaj')
+            // console.log(reso)
+            console.log(reso.data.result)
+            console.log('masukan')
+            // const result = reso.data.result.map(item => {
+            //   console.log(typeof (item.tgl))
+            //   // item.tgl.split('T')
+            // })
+            // console.log(result)
+            console.log(reso.data.result)
+            console.log('akkh result')
+            await setex.commit('mutMessage', reso.data.result)
+            await resolve(reso.data.result)
+          })
+          .catch(err => {
+            console.log(err)
+            reject(err)
+          })
+      })
+    },
+    actGetMessage (setex, payload) {
+      return new Promise((resolve, reject) => {
+        axios.post('http://localhost:4000/api/v1/users/getmessage/', payload)
+          .then(async (res) => {
+            // axios.get('http://localhost:4000/api/v1/users/getmessage/' + payload.id + '/' + payload.idfriend)
+            //   .then(reso => {
+            //     setex.commit('mutMessage', reso.data.result)
+            //   })
+            //   .catch(err => {
+            //     console.log(err)
+            //   })
+            console.log('actGetMessage')
+            console.log(res)
+            await resolve(payload)
+          })
+          .catch(err => {
+            console.log(err)
+            reject(err)
+          })
+      })
+    },
+    actgetUser (setex, payload) {
+      return new Promise((resolve, reject) => {
+        axios.get('http://localhost:4000/api/v1/users/userbyid/' + payload)
+          .then(res => {
+            setex.commit('mutCurrentUser', res.data.result)
+          })
+      })
+    },
+    updateUser (setex, payload) {
+      return new Promise((resolve, reject) => {
+        axios.patch('http://localhost:4000/api/v1/users/userbyid/' + payload.id, payload.data)
+          .then(res => {
+            resolve(res)
+          })
+          .catch(err => {
+            reject(err)
+          })
+      })
+    },
+    removeFriend (setex, { idUser, idFriend }) {
+      return new Promise((resolve, reject) => {
+        axios.delete('http://localhost:4000/api/v1/users/addfriend/' + idUser + '/' + idFriend)
+          .then(res => {
+            resolve(res)
           })
           .catch(err => {
             reject(err)
@@ -84,12 +178,53 @@ export default new Vuex.Store({
             // })
             console.log(res)
             console.log('bratbe')
-            const tmpArray = []
+            let tmpArray = []
+            let oldArr = []
             for (let i = 0; i < res.data.result.length; i++) {
               axios.get('http://localhost:4000/api/v1/users/getfriend/' + payload.id + '/' + res.data.result[i].idFriend)
                 .then(resu => {
+                  const data = resu.data.result[0]
+                  tmpArray.push(data)
+                  console.log('tmpArrat')
+                  console.log(tmpArray)
+                  console.log('tmpArray akhir')
+                  axios.get('http://localhost:4000/api/v1/users/getmessage/' + payload.id + '/' + res.data.result[i].idFriend)
+                    .then(reso => {
+                      tmpArray = []
+                      console.log('notifmessage ba')
+                      console.log(oldArr.length)
+                      console.log(reso.data.result.length)
+                      if (oldArr.length < reso.data.result.length) {
+                        if (oldArr.length === 0) {
+                          oldArr = reso.data.result
+                          data.notifMessage = 0
+                          console.log(data.notifMessage)
+                          console.log('akhir notifMessage')
+                        } else {
+                          data.notifMessage += reso.data.result.length - oldArr.length
+                          oldArr = reso.data.result
+                        }
+                      }
+                      const result = reso.data.result[reso.data.result.length - 1]
+                      console.log(result)
+                      console.log(reso.data.result)
+                      console.log('akkh result 33')
+                      data.message = result.message
+                      data.tgl = formatDate(result.tgl)
+                      tmpArray.push(data)
+                      function formatDate (date) {
+                        return moment(date).format('LT')
+                      }
+                      // setex.commit('mutMessage', reso.data.result)
+                      resolve(reso.data.result)
+                    })
+                    .catch(err => {
+                      console.log(err)
+                      reject(err)
+                    })
+
                   console.log(resu)
-                  tmpArray.push(resu.data.result[0])
+                  // tmpArray.push(resu.data.result[0])
                   // console.log(res)
                   console.log('res addUser akhir')
                   resolve(resu.data.result)
@@ -108,36 +243,85 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => {
         axios.get('http://localhost:4000/api/v1/users/user/' + payload.email)
           .then(resultUser => {
-            alert('res addUser')
+            // alert('res addUser')
             console.log('res addUser')
             console.log(resultUser.data.result)
             console.log(resultUser.data.result.id)
             console.log(resultUser)
             setex.commit('setAddUser', resultUser.data.result)
-            axios.get('http://localhost:4000/api/v1/users/addfriend/' + payload.id)
-              .then(res => {
-                const resFilter = res.data.result.filter(item => {
-                  // return item.idUser === resultUser.data.result.id
-                  return item.idFriend === resultUser.data.result.id
-                })
-                console.log(resFilter)
-                setex.commit('setAddFriends', resFilter)
-                console.log('res addUser akhir')
-                if (resFilter.length === 0) {
-                  const data = {
-                    idUser: payload.id,
-                    idFriend: resultUser.data.result.id
-                  }
-                  axios.post('http://localhost:4000/api/v1/users/addfriend/', data)
-                  resolve(resultUser.data.result)
-                }
-              })
-              .catch(err => {
-                console.log(err)
-              })
+            resolve(resultUser.data.result)
+            // axios.get('http://localhost:4000/api/v1/users/addfriend/' + payload.id)
+            //   .then(res => {
+            //     const resFilter = res.data.result.filter(item => {
+            //       // return item.idUser === resultUser.data.result.id
+            //       return item.idFriend === resultUser.data.result.id
+            //     })
+            //     console.log(resFilter)
+            //     setex.commit('setAddFriends', resFilter)
+            //     console.log('res addUser akhir')
+            //     if (resFilter.length === 0) {
+            //       const data = {
+            //         idUser: payload.id,
+            //         idFriend: resultUser.data.result.id
+            //       }
+            //       axios.post('http://localhost:4000/api/v1/users/addfriend/', data)
+            //         .then(r => {
+            //           resolve(resultUser.data.result)
+            //         })
+            //         .catch(err => {
+            //           reject(err)
+            //         })
+            //     }
+            //   })
+            //   .catch(err => {
+            //     console.log(err)
+            //   })
           })
           .catch(err => {
             console.log(err)
+            reject(err)
+          })
+      })
+    },
+    cekUser (setex, { resultUser, id }) {
+      return new Promise((resolve, reject) => {
+        axios.get('http://localhost:4000/api/v1/users/addfriend/' + id)
+          .then(res => {
+            console.log(resultUser)
+            console.log('cek Resultttsa')
+            const resFilter = res.data.result.filter(item => {
+              // return item.idUser === resultUser.data.result.id
+              return item.idFriend === resultUser.id
+            })
+            console.log(resFilter)
+            // setex.commit('setAddFriends', resFilter)
+            console.log('res addUser akhir')
+            if (resFilter.length === 0) {
+              const data = {
+                idUser: id,
+                idFriend: resultUser.id
+              }
+              resolve(data)
+            } else {
+              const str = 'Anda sudah berteman'
+              reject(str)
+            }
+          })
+          .catch(err => {
+            console.log(err)
+            reject(err)
+          })
+      })
+    },
+    insertFriend (setex, data) {
+      console.log(data)
+      console.log('insertfriens')
+      return new Promise((resolve, reject) => {
+        axios.post('http://localhost:4000/api/v1/users/addfriend/', data)
+          .then(r => {
+            resolve(r)
+          })
+          .catch(err => {
             reject(err)
           })
       })
@@ -163,19 +347,25 @@ export default new Vuex.Store({
       // Any status code that lie within the range of 2xx cause this function to trigger
       // Do something with response data
         console.log(response)
-        console.log(payload, 'response')
+        console.log(payload, 'response bri')
         return response
       }, function (error) {
         console.log(payload)
         console.log('ini error response')
         console.log(error.response)
+        // if (error.response.status === 401 && error.response.data.result.message === 'Email Not Found') {
+        //   alert('Email salah ya bro')
+        //   localStorage.removeItem('token')
+        //   setex.commit('setToken', null)
+        //   Router.push('/login')
+        // } else
         if (error.response.status === 401 && error.response.data.result.message === 'token invalid') {
-          // alert('Jangang coba-coba masukan token')
+          alert('Jangang coba-coba masukan token')
           localStorage.removeItem('token')
           setex.commit('setToken', null)
           Router.push('/login')
         } else if (error.response.status === 401 && error.response.data.result.message === 'token expired') {
-          // alert('Token expired silahkan login')
+          alert('Token expired silahkan login')
           localStorage.removeItem('token')
           setex.commit('setToken', null)
           Router.push('/login')
@@ -213,6 +403,18 @@ export default new Vuex.Store({
     },
     getTextMessage (state) {
       return state.textMessage
+    },
+    getMsg (state) {
+      return state.msg
+    },
+    getUserId (state) {
+      return state.userId
+    },
+    getCurrentUser (state) {
+      return state.currentUser
+    },
+    getUser (state) {
+      return state.user.id
     }
   }
 })
