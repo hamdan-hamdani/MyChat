@@ -7,6 +7,7 @@ import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Store from '../store/index'
 import ForgotPassword from '../views/ForgotPassword.vue'
+import ChangePassword from '../views/ChangePassword.vue'
 import Profile from '../views/Profile.vue'
 
 Vue.use(VueRouter)
@@ -40,6 +41,12 @@ const routes = [
     path: '/forgotpassword',
     name: 'ForgotPassword',
     component: ForgotPassword,
+    meta: { requiresVisitor: true }
+  },
+  {
+    path: '/changepassword',
+    name: 'ChangePassword',
+    component: ChangePassword,
     meta: { requiresVisitor: true }
   },
   {
