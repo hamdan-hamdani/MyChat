@@ -7,6 +7,8 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    emailForgotPassword: '',
+    tokenForgotPassword: '',
     user: {},
     // user: localStorage.getItem('id') || null,
     token: localStorage.getItem('token') || null,
@@ -17,7 +19,8 @@ export default new Vuex.Store({
     textMessage: '',
     msg: [],
     userId: '',
-    currentUser: []
+    currentUser: [],
+    NotifMsg: ''
   },
   mutations: {
     mutuserId (state, payload) {
@@ -26,6 +29,10 @@ export default new Vuex.Store({
     setUser (state, payload) {
       state.user = payload
       state.token = payload.token
+    },
+    setForgotPassword (state, payload) {
+      state.emailForgotPassword = payload.email
+      state.tokenForgotPassword = payload.token
     },
     setToken (state, payload) {
       state.token = payload
@@ -49,9 +56,45 @@ export default new Vuex.Store({
     },
     mutCurrentUser (state, payload) {
       state.currentUser = payload
+    },
+    setNotifMsg (state, payload) {
+      state.NotifMsg = payload
     }
   },
   actions: {
+    actUpdateNotifMsg (setex, { noMsg, data }) {
+      return new Promise((resolve, reject) => {
+        axios.patch('http://localhost:4000/api/v1/users/notifmsg/' + data.id + '/' + data.idfriend + '/' + noMsg)
+          .then(res => {
+            resolve(data)
+          })
+          .catch(err => {
+            reject(err)
+          })
+      })
+    },
+    actNotifMsg (setex, payload) {
+      return new Promise((resolve, reject) => {
+        console.log(payload.idfriend)
+        console.log('id batur')
+        axios.get('http://localhost:4000/api/v1/users/notifmsg/' + payload.idfriend, payload)
+          .then(res => {
+            console.log(res.data.result)
+            console.log('ini actnotifmsg')
+            if (res.data.result.length === 0) {
+              axios.post('http://localhost:4000/api/v1/users/notifmsg', payload)
+              // setex.commit('setNotifMsg', 0)
+              resolve(0)
+            } else {
+              // setex.commit('setNotifMsg', res.data.result[0].noMsg)
+              resolve(res.data.result[0].noMsg)
+            }
+          })
+          .catch(err => {
+            reject(err)
+          })
+      })
+    },
     login (setex, payload) {
       console.log(payload)
       return new Promise((resolve, reject) => {
@@ -62,6 +105,22 @@ export default new Vuex.Store({
             setex.commit('setUser', res.data.result)
             localStorage.setItem('token', res.data.result.token)
             localStorage.setItem('id', res.data.result.id)
+            resolve(res.data.result)
+          })
+          .catch(err => {
+            console.log(err)
+            reject(err)
+          })
+      })
+    },
+    forgotPassword (setex, payload) {
+      console.log(payload)
+      return new Promise((resolve, reject) => {
+        axios.post('http://localhost:4000/api/v1/users/forgotPassword', payload)
+          .then(res => {
+            console.log('res')
+            console.log(res.data.result)
+            setex.commit('setForgotPassword', res.data.result)
             resolve(res.data.result)
           })
           .catch(err => {
@@ -178,55 +237,85 @@ export default new Vuex.Store({
             // })
             console.log(res)
             console.log('bratbe')
-            let tmpArray = []
-            let oldArr = []
+            const tmpArray = []
+            // const oldArr = []
             for (let i = 0; i < res.data.result.length; i++) {
               axios.get('http://localhost:4000/api/v1/users/getfriend/' + payload.id + '/' + res.data.result[i].idFriend)
                 .then(resu => {
                   const data = resu.data.result[0]
-                  tmpArray.push(data)
-                  console.log('tmpArrat')
-                  console.log(tmpArray)
-                  console.log('tmpArray akhir')
+                  // tmpArray.push(data)
+                  // console.log('tmpArrat')
+                  // console.log(tmpArray)
+                  // console.log('tmpArray akhir')
+                  console.log(data)
+                  console.log('ya akhhir dara')
                   axios.get('http://localhost:4000/api/v1/users/getmessage/' + payload.id + '/' + res.data.result[i].idFriend)
                     .then(reso => {
-                      tmpArray = []
-                      console.log('notifmessage ba')
-                      console.log(oldArr.length)
-                      console.log(reso.data.result.length)
-                      if (oldArr.length < reso.data.result.length) {
-                        if (oldArr.length === 0) {
-                          oldArr = reso.data.result
-                          data.notifMessage = 0
-                          console.log(data.notifMessage)
-                          console.log('akhir notifMessage')
-                        } else {
-                          data.notifMessage += reso.data.result.length - oldArr.length
-                          oldArr = reso.data.result
-                        }
-                      }
+                      // tmpArray = []
+                      // console.log('notifmessage ba')
+                      // console.log(oldArr.length)
+                      // console.log(reso.data.result.length)
+                      // if (oldArr.length < reso.data.result.length) {
+                      // if (oldArr.length === 0) {
+                      //   oldArr = reso.data.result
+                      //   data.notifMessage = 0
+                      //   console.log(data.notifMessage)
+                      //   console.log('akhir notifMessage')
+                      // } else {
+                      //   data.notifMessage += reso.data.result.length - oldArr.length
+                      //   oldArr = reso.data.result
+                      // }
+                      // }
                       const result = reso.data.result[reso.data.result.length - 1]
                       console.log(result)
                       console.log(reso.data.result)
                       console.log('akkh result 33')
-                      data.message = result.message
-                      data.tgl = formatDate(result.tgl)
+                      if (reso.data.result.length !== 0) {
+                        data.message = result.message
+                        data.tgl = formatDate(result.tgl)
+                      }
                       tmpArray.push(data)
                       function formatDate (date) {
                         return moment(date).format('LT')
                       }
+                      // axios.patch('http://localhost:4000/api/v1/users/notifmsg/' + payload.id + '/' + payload.idfriend + '/' + payload.noMsg)
+                      //   .then(res => {
+                      //     // data.noMsg = payload.noMsg
+                      // axios.get('http://localhost:4000/api/v1/users/notifmsg/' + payload.id + '/' + res.data.result[i].idFriend, payload)
+                      //   .then(res => {
+                      //     console.log(res.data.result)
+                      //     data.noMsg = res.data.result[0].noMsg
+                      //     tmpArray.push(data)
+                      //     console.log('ini actnotifmsg')
+                      //     // if (res.data.result.length === 0) {
+                      //     //   axios.post('http://localhost:4000/api/v1/users/notifmsg', payload)
+                      //     //   // setex.commit('setNotifMsg', 0)
+                      //     //   resolve(0)
+                      //     // } else {
+                      //     //   // setex.commit('setNotifMsg', res.data.result[0].noMsg)
+                      //     //   resolve(res.data.result[0].noMsg)
+                      //     // }
+                      //   })
+                      //   .catch(err => {
+                      //     reject(err)
+                      //   })
+                      //     resolve(payload)
+                      //   })
+                      //   .catch(err => {
+                      //     reject(err)
+                      //   })
                       // setex.commit('mutMessage', reso.data.result)
                       resolve(reso.data.result)
                     })
-                    .catch(err => {
-                      console.log(err)
-                      reject(err)
-                    })
+                  // .catch(err => {
+                  //   console.log(err)
+                  //   reject(err)
+                  // })
 
-                  console.log(resu)
+                  // console.log(resu)
                   // tmpArray.push(resu.data.result[0])
                   // console.log(res)
-                  console.log('res addUser akhir')
+                  // console.log('res addUser akhir')
                   resolve(resu.data.result)
                 })
             }
@@ -414,7 +503,11 @@ export default new Vuex.Store({
       return state.currentUser
     },
     getUser (state) {
+      state.user.id = localStorage.getItem('id')
       return state.user.id
+    },
+    getNotifMsg (state) {
+      return state.NotifMsg
     }
   }
 })
