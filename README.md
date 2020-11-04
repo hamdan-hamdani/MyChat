@@ -20,12 +20,12 @@
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents
 
-* [About the Project](#about-the-project)
-  * [Built With](#built-with)
-* [Getting Started](#getting-started)
-  * [Installation](#installation)
+* [Tentang Projek](#Tentang-Projek)
+  * [Dibangun dengan](#Dibangun-dengan)
+* [Mulai](#Mulai)
+  * [Instalasi](#Instalasi)
 * [Screenshots](#screenshots)
-* [Related Project](#related-project)
+* [Projek terkait](#Projek-terkait)
 * [Contact](#contact)
 
 <!-- ABOUT THE PROJECT -->
@@ -40,9 +40,9 @@ MyChat ialah aplikasi chatting real time yang dapat digunakan untuk chatting sec
 * [Vue Bootstrap](https://bootstrap-vue.org/)
 
 <!-- GETTING STARTED -->
-## Getting Started
+## Mulai
 
-### Installation
+### Instalasi
 
 1. Clone repositori
 ```sh
@@ -71,7 +71,7 @@ npm run serve
   </span>
  </p>
  
-## Related Project
+## Projek terkait
 * [`Backend-MyChat`](https://github.com/hamdan-hamdani/Backend-MyChat)
 
 <!-- CONTACT -->
