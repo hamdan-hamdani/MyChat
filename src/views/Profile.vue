@@ -1,7 +1,7 @@
 <template>
       <div class="container-chat">
         <div class="left">
-          <div class="back"><router-link to="/">back</router-link></div>
+          <div class="back"><router-link to="/"><div class="bg">back</div></router-link></div>
           <div class="container-image">
               <img :src="getCurrentUser.image" alt="">
           </div>
@@ -18,24 +18,34 @@
           <div class="bio">
               <p>{{getCurrentUser.bio}}</p>
           </div>
-          <button @click="updateProfile">Update Profile</button>
+          <button class="update-profile" @click="updateProfile">Update Profile</button>
         </div>
       <div class="right">
         <div v-if="activupdateProfile" class="empty">
           <p>Please select a chat to start messaging</p>
         </div>
-        <div v-else>
+        <div class="form" v-else>
             <form enctype="multipart/form-data">
-                <label for="name">Nama</label>
-                <input type="text" v-model="name" name="name" id="name">
-                <label for="image"></label>
-                <input type="file" @change="selectFile" ref="file" name="image" id="image">
-                <label for="nohp">No Hp</label>
-                <input type="number" v-model="nohp" name="price" id="nohp">
-                <label for="bio">Bio</label>
-                <input type="text" v-model="bio" id="bio">
+                <table>
+                  <tr>
+                    <td><label for="name">Nama</label></td>
+                    <td><input type="text" v-model="name" name="name" id="name"><br></td>
+                  </tr>
+                  <tr>
+                    <td><label for="image">Foto </label></td>
+                    <td><input type="file" @change="selectFile" ref="file" name="image" id="image"><br></td>
+                  </tr>
+                  <tr>
+                    <td><label for="nohp">No Hp</label></td>
+                    <td><input type="number" v-model="nohp" name="price" id="nohp"><br></td>
+                  </tr>
+                  <tr>
+                    <td><label for="bio">Bio</label></td>
+                    <td><input type="text" v-model="bio" id="bio"><br></td>
+                  </tr>
+                </table>
             </form>
-            <button v-on:click="sendEdit">Edit</button>
+            <button class="update-profile" v-on:click="sendEdit">Edit</button>
         </div>
       </div>
       </div>
@@ -232,7 +242,7 @@ export default {
   display: flex;
 }
 .left {
-  flex: 0.5;
+  flex: 0.7;
   border-right: 1px solid #E5E5E5;
 }
 .left div {
@@ -256,7 +266,7 @@ export default {
 }
 .right {
   flex: 2;
-  background-color:  #E5E5E5;
+  background-color:  white;
   text-align: center;
   height: 100%;
   /* border: 1px solid green; */
@@ -266,6 +276,38 @@ export default {
 }
 form {
     background: #ffffff;
+    margin-bottom: 10px;
 }
+.back {
+  width: 20px;
+  height: 20px;
+}
+.bg {
+  background: url('../assets/arrow-left-solid.svg');
+  background-repeat: no-repeat;
+  background-size: contain;
+  color: white;
+}
+.update-profile {
+  padding: 5px 20px;
+    display: block;
+    margin: 0 auto;
+}
+.form {
+    padding-top: 118px;
+    padding-bottom: 118px;
+}
+.form label {
+      margin-right: 10px;
+}
+table {
+  margin: 0 auto;
+  text-align: left;
+}
+input {
+      border-radius: 5px;
+    width: 95%;
+    height: 40px;
 
+}
 </style>
