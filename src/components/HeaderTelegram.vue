@@ -21,6 +21,7 @@
             <label for="addUser">Add Friend</label>
             <input type="text" name="" id="addUser" v-model="searchUser">
             <button @click="AddFriend">Add</button>
+            <button @click="Cancel">Cancel</button>
           </div>
         </div>
     </div>
@@ -63,6 +64,9 @@ export default {
     inviteFriend () {
       this.activMenu = false
       this.containerAddFriend = true
+    },
+    Cancel () {
+      this.containerAddFriend = false
     },
     AddFriend () {
       this.addUser({ email: this.searchUser }) //, id: this.idUser
@@ -153,13 +157,35 @@ export default {
   object-fit: contain;
 }
 .container-add-friend {
-  position: fixed;
-  top: 59px;
-  left: 12px;
-  background-color: gray;
-  /* opacity: .3; */
+    position: fixed;
+    top: 25%;
+    left: 40%;
 }
 .container-add {
-  background: #ffffff;
+    background: #7e98df;
+    padding: 60px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-radius: 15px;
+}
+.container-add label {
+    display: block;
+    color: white;
+    font-weight: 100;
+    text-align: center;
+    font-size: x-large;
+}
+.container-add input {
+    display: block;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    border: none;
+}
+.container-add button {
+    /* margin: 0 auto;
+    display: block; */
+    padding: 5px 15px;
+    border-radius: 5px;
+    margin-left: 19px;
 }
 </style>
