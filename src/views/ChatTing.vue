@@ -25,7 +25,8 @@
               </div>
               <div class="user-notif">
                 <p>{{friend.tgl}}</p>
-                <p><span @click="unFriend(friend.idFriend)" class="notif">X</span></p>
+                <p v-if="friend.idFriend == idFriendCurrent"><span @click="unFriend(friend.idFriend)" class="notif">{{getNotifMsg}}</span></p>
+                <p class="none"><span @click="unFriend(friend.idFriend)" class="notif">{{friend.noMsg}}X</span></p>
                 <!-- {{friend.notifMessage}} -->
               </div>
             </div>
@@ -141,7 +142,8 @@ export default {
   data () {
     return {
       socket: io('http://localhost:4000'),
-      userId: this.$route.params.userId,
+      // userId: this.$route.params.userId,
+      userId: localStorage.getItem('id'),
       // username: this.$route.params.username,
       // room: this.$route.params.room,
       messages: [],
@@ -156,18 +158,14 @@ export default {
       activAttachment: false,
       activmenuFriend: false,
       noMessage: '',
-      currentfriend: 0
+      currentfriend: 0,
+      idFriendCurrent: 0
     }
   },
   mounted () {
     // if (!this.$route.params.userId) {
     //   this.$router.push('/login')
     // }
-    this.socket.on('notifMessage', data => {
-      // alert(data)
-      this.noMessage = data
-      console.log('notifmessssssss')
-    })
     this.getFriends({ email: this.searchUser, id: this.userId })
     this.socket.emit('welcomeMessage', {
       id: this.getUser,
@@ -193,7 +191,19 @@ export default {
               // console.log('b ga y')
               console.log(respol)
               console.log('akhir respol')
-              await this.socket.emit('GetMessageGo', { data: data, respol: respol })
+              await this.actNotifMsg(data)
+                .then(async (resActNotifMsg) => {
+                  console.log('respol baruuuuu')
+                  console.log(respol)
+                  console.log(resActNotifMsg)
+                  console.log('respol baruuuuu')
+                  await this.socket.emit('GetMessageGo', { noMsg: resActNotifMsg, data: data, respol: respol })
+                  this.getFriends({ email: this.searchUser, id: this.getUser })
+                })
+                .catch(err => {
+                  console.log('err notif Message')
+                  console.log(err)
+                })
               // this.getFriends({ email: this.searchUser, id: this.getUser })
             })
             .catch(err => {
@@ -210,19 +220,47 @@ export default {
       //     this.tmpMessages.push(this.getMsg)
       //   })
     })
+    this.socket.on('notifMessage', ({ noMsg, data }) => {
+      alert(noMsg)
+      this.actUpdateNotifMsg({ noMsg, data })
+        .then(resUpdate => {
+          // this.actNotifMsg(data)
+          console.log(data)
+          // const payload = {
+          //   noMsg: noMsg,
+          //   id: data.id,
+          //   idfriend: data.idfriend,
+          //   value: data.value
+          // }
+          this.idFriendCurrent = parseInt(data.id)
+          // this.getFriends(payload)
+          this.setNotifMsg(noMsg)
+        })
+        .catch(err => {
+          console.log('err update Notif Message')
+          console.log(err)
+        })
+      console.log('notifmessssssss')
+    })
     this.socket.on('GetMessageGogo', ({ data, respol }) => {
       // alert('getmessage go ya')
       console.log('getmessage go ya')
       console.log(respol)
-      if (data.id === this.currentfriend || data.idfriend === this.currentfriend) {
+      const did = typeof (data.id)
+      const dcurrent = typeof (this.currentfriend)
+      alert(`data.id ${data.id} ${did}`)
+      alert(`data.currentfriend ${this.currentfriend} ${dcurrent}`)
+      if (parseInt(data.id) === parseInt(this.currentfriend) || parseInt(data.idfriend) === parseInt(this.currentfriend)) {
         this.mutMessage(respol)
+      } else {
+        alert('yo taubat')
       }
       // this.actGetMsg(data)
       //   .then(async (resl) => {
       //     await console.log(resl)
       //     // alert('bismilah')
       //     await this.actGetMsg(data)
-      //     // this.getFriends({ email: this.searchUser, id: this.getUser })
+      this.getFriends({ email: this.searchUser, id: this.getUser })
       //   })
       //   .catch(err => {
       //     console.log(err)
@@ -236,11 +274,11 @@ export default {
     })
   },
   computed: {
-    ...mapGetters(['getPersonalChat', 'getAddFriends', 'getMsg', 'getUser'])
+    ...mapGetters(['getPersonalChat', 'getAddFriends', 'getMsg', 'getUser', 'getNotifMsg'])
   },
   methods: {
-    ...mapActions(['addUser', 'getFriends', 'actGetMessage', 'actGetMsg', 'sendImage', 'removeFriend']),
-    ...mapMutations(['mutMessage']),
+    ...mapActions(['addUser', 'getFriends', 'actGetMessage', 'actGetMsg', 'sendImage', 'removeFriend', 'actUpdateNotifMsg', 'actNotifMsg']),
+    ...mapMutations(['mutMessage', 'setNotifMsg']),
     unFriend (idFriend) {
       // alert(idFriend)
       this.removeFriend({ idUser: this.getUser, idFriend })
@@ -272,7 +310,7 @@ export default {
     handleDataFriend (friend) {
       console.log(friend)
       console.log('frined bro')
-      // alert('masuk')
+      alert('masuk')
       this.currentfriend = friend.idFriend
       this.friend = friend
       let arrFriend = []
@@ -295,9 +333,27 @@ export default {
       console.log(arrFriend)
       this.socket.emit('online', this.getUser, friend.idFriend)
       this.activ = false
+      const data = {
+        id: this.friend.idFriend,
+        idfriend: this.getUser
+        // id: this.getUser,
+        // idfriend: this.friend.idFriend
+      }
+      this.actUpdateNotifMsg({ noMsg: 0, data })
+        .then(resUpdate => {
+          // this.actNotifMsg(data)
+          // this.getFriends(payload)
+          this.setNotifMsg('')
+        })
+        .catch(err => {
+          alert('err update Notif Message')
+          console.log(err)
+        })
     },
     sendEmail () {
       alert(this.friend.email + 'be')
+      alert(this.friend.idFriend)
+      alert(this.getUser)
       this.socket.emit('sendMessage', {
         value: this.textMessage,
         id: this.getUser,
@@ -454,6 +510,9 @@ export default {
   box-sizing: border-box;
   text-align: right;
 }
+.container-user .user-notif:hover .none {
+  display: inline;
+}
 .user-notif span {
   background: #7E98DF;
   width: 25px;
@@ -538,5 +597,8 @@ export default {
 .friend-tgl {
   padding: 10px;
   box-sizing: border-box;
+}
+.none {
+  display: none;
 }
 </style>
