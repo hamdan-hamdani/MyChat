@@ -64,7 +64,7 @@ export default new Vuex.Store({
   actions: {
     actUpdateNotifMsg (setex, { noMsg, data }) {
       return new Promise((resolve, reject) => {
-        axios.patch('http://localhost:4000/api/v1/users/notifmsg/' + data.id + '/' + data.idfriend + '/' + noMsg)
+        axios.patch('https://api-mychat.fwdev.online/api/v1/users/notifmsg/' + data.id + '/' + data.idfriend + '/' + noMsg)
           .then(res => {
             resolve(data)
           })
@@ -77,12 +77,12 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => {
         console.log(payload.idfriend)
         console.log('id batur')
-        axios.get('http://localhost:4000/api/v1/users/notifmsg/' + payload.idfriend, payload)
+        axios.get('https://api-mychat.fwdev.online/api/v1/users/notifmsg/' + payload.idfriend, payload)
           .then(res => {
             console.log(res.data.result)
             console.log('ini actnotifmsg')
             if (res.data.result.length === 0) {
-              axios.post('http://localhost:4000/api/v1/users/notifmsg', payload)
+              axios.post('https://api-mychat.fwdev.online/api/v1/users/notifmsg', payload)
               // setex.commit('setNotifMsg', 0)
               resolve(0)
             } else {
@@ -98,7 +98,7 @@ export default new Vuex.Store({
     login (setex, payload) {
       console.log(payload)
       return new Promise((resolve, reject) => {
-        axios.post('http://localhost:4000/api/v1/users/login', payload)
+        axios.post('https://api-mychat.fwdev.online/api/v1/users/login', payload)
           .then(res => {
             console.log('res')
             console.log(res.data.result)
@@ -116,7 +116,7 @@ export default new Vuex.Store({
     forgotPassword (setex, payload) {
       console.log(payload)
       return new Promise((resolve, reject) => {
-        axios.post('http://localhost:4000/api/v1/users/forgotPassword', payload)
+        axios.post('https://api-mychat.fwdev.online/api/v1/users/forgotPassword', payload)
           .then(res => {
             console.log('res')
             console.log(res.data.result)
@@ -131,7 +131,7 @@ export default new Vuex.Store({
     },
     register (_setex, payload) {
       return new Promise((resolve, reject) => {
-        axios.post('http://localhost:4000/api/v1/users/register', payload)
+        axios.post('https://api-mychat.fwdev.online/api/v1/users/register', payload)
           .then(res => {
             // setex.commit('setRegister', res.data.result)
             resolve(res.data.result)
@@ -146,7 +146,7 @@ export default new Vuex.Store({
       console.log(payload)
       console.log('akhir')
       return new Promise((resolve, reject) => {
-        axios.get('http://localhost:4000/api/v1/users/getmessage/' + payload.id + '/' + payload.idfriend)
+        axios.get('https://api-mychat.fwdev.online/api/v1/users/getmessage/' + payload.id + '/' + payload.idfriend)
           .then(async (reso) => {
             // alert('masukaj')
             // console.log('masukaj')
@@ -171,7 +171,7 @@ export default new Vuex.Store({
     },
     actGetMessage (setex, payload) {
       return new Promise((resolve, reject) => {
-        axios.post('http://localhost:4000/api/v1/users/getmessage/', payload)
+        axios.post('https://api-mychat.fwdev.online/api/v1/users/getmessage/', payload)
           .then(async (res) => {
             // axios.get('http://localhost:4000/api/v1/users/getmessage/' + payload.id + '/' + payload.idfriend)
             //   .then(reso => {
@@ -192,7 +192,7 @@ export default new Vuex.Store({
     },
     actgetUser (setex, payload) {
       return new Promise((resolve, reject) => {
-        axios.get('http://localhost:4000/api/v1/users/userbyid/' + payload)
+        axios.get('https://api-mychat.fwdev.online/api/v1/users/userbyid/' + payload)
           .then(res => {
             setex.commit('mutCurrentUser', res.data.result)
           })
@@ -200,7 +200,7 @@ export default new Vuex.Store({
     },
     updateUser (setex, payload) {
       return new Promise((resolve, reject) => {
-        axios.patch('http://localhost:4000/api/v1/users/userbyid/' + payload.id, payload.data)
+        axios.patch('https://api-mychat.fwdev.online/api/v1/users/userbyid/' + payload.id, payload.data)
           .then(res => {
             resolve(res)
           })
@@ -211,7 +211,7 @@ export default new Vuex.Store({
     },
     removeFriend (setex, { idUser, idFriend }) {
       return new Promise((resolve, reject) => {
-        axios.delete('http://localhost:4000/api/v1/users/addfriend/' + idUser + '/' + idFriend)
+        axios.delete('https://api-mychat.fwdev.online/api/v1/users/addfriend/' + idUser + '/' + idFriend)
           .then(res => {
             resolve(res)
           })
@@ -222,7 +222,7 @@ export default new Vuex.Store({
     },
     getFriends (setex, payload) {
       return new Promise((resolve, reject) => {
-        axios.get('http://localhost:4000/api/v1/users/getuser/' + payload.id)
+        axios.get('https://api-mychat.fwdev.online/api/v1/users/getuser/' + payload.id)
           .then(res => {
             // const resFilter = res.data.result.filter(item => {
             //   console.log(item)
@@ -240,7 +240,7 @@ export default new Vuex.Store({
             const tmpArray = []
             // const oldArr = []
             for (let i = 0; i < res.data.result.length; i++) {
-              axios.get('http://localhost:4000/api/v1/users/getfriend/' + payload.id + '/' + res.data.result[i].idFriend)
+              axios.get('https://api-mychat.fwdev.online/api/v1/users/getfriend/' + payload.id + '/' + res.data.result[i].idFriend)
                 .then(resu => {
                   const data = resu.data.result[0]
                   // tmpArray.push(data)
@@ -249,7 +249,7 @@ export default new Vuex.Store({
                   // console.log('tmpArray akhir')
                   console.log(data)
                   console.log('ya akhhir dara')
-                  axios.get('http://localhost:4000/api/v1/users/getmessage/' + payload.id + '/' + res.data.result[i].idFriend)
+                  axios.get('https://api-mychat.fwdev.online/api/v1/users/getmessage/' + payload.id + '/' + res.data.result[i].idFriend)
                     .then(reso => {
                       // tmpArray = []
                       // console.log('notifmessage ba')
@@ -330,7 +330,7 @@ export default new Vuex.Store({
       console.log(payload)
       console.log('akkh')
       return new Promise((resolve, reject) => {
-        axios.get('http://localhost:4000/api/v1/users/user/' + payload.email)
+        axios.get('https://api-mychat.fwdev.online/api/v1/users/user/' + payload.email)
           .then(resultUser => {
             // alert('res addUser')
             console.log('res addUser')
@@ -374,7 +374,7 @@ export default new Vuex.Store({
     },
     cekUser (setex, { resultUser, id }) {
       return new Promise((resolve, reject) => {
-        axios.get('http://localhost:4000/api/v1/users/addfriend/' + id)
+        axios.get('https://api-mychat.fwdev.online/api/v1/users/addfriend/' + id)
           .then(res => {
             console.log(resultUser)
             console.log('cek Resultttsa')
@@ -406,7 +406,7 @@ export default new Vuex.Store({
       console.log(data)
       console.log('insertfriens')
       return new Promise((resolve, reject) => {
-        axios.post('http://localhost:4000/api/v1/users/addfriend/', data)
+        axios.post('https://api-mychat.fwdev.online/api/v1/users/addfriend/', data)
           .then(r => {
             resolve(r)
           })

@@ -30,7 +30,7 @@ export default {
     // userId: this.$route.params.userId,
     // userName: this.$route.params.username
     return {
-      socket: io('http://localhost:4000'),
+      socket: io('https://api-mychat.fwdev.online/'),
       userId: this.$route.params.userId,
       username: this.$route.params.username,
       room: this.$route.params.room,

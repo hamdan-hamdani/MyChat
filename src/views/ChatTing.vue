@@ -141,7 +141,7 @@ export default {
   },
   data () {
     return {
-      socket: io('http://localhost:4000'),
+      socket: io('https://api-mychat.fwdev.online/'),
       // userId: this.$route.params.userId,
       userId: localStorage.getItem('id'),
       // username: this.$route.params.username,
